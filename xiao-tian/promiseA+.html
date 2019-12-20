@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    function myPromise(executor) {
+        let self = this
+        self.value = null
+        self.reson = null
+        sele.status = 'pending'
+        self.resCallback = []
+        sele.rejCallback = []
+
+        function resolve(value) {
+            if (sele.status == 'pending') {
+                sele.status = 'resolved'
+                self.value = value
+                self.resCallback.forEach(item => {
+                    item(self.value)
+                });
+            }
+        }
+
+        function reject(reson) {
+            if (sele.status == 'pending') {
+                sele.status = 'rejected'
+                self.reson = reson
+                self.rejCallback.forEach(item => {
+                    item(self.reson)
+                });
+            }
+        }
+
+        try {
+            executor(resovle, reject)
+        } catch (error) {
+            reject(error)
+        }
+    }
+    myPromise.prototype.then = function (res, rej) {
+        let self = this
+        return new Promise(function (res, rej) {
+            if (self.status == 'resolved') {
+                res(self.value)
+            }
+            if (self.status == 'rejected') {
+                rej(self.reson)
+            }
+            if (self.status == 'pending') {
+                self.resCallback.push(res)
+                self.rejCallback.push(rej)
+            }
+        })
+    }
+
+</script>

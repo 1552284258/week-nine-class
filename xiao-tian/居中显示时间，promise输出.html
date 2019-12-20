@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #box {
+            height: 50px;
+            width: 200px;
+            line-height: 50px;
+            text-align: center;
+            border: 1px solid red;
+            margin: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box">ssss</div>
+</body>
+
+</html>
+<script>
+
+    //使用Promise，随机生成一个数，三秒后输出，若数不小于0.5，则使用then输出，否则按异常输出
+    /*     function fn(){
+            return new Promise((res,rej)=>{
+                let random = Math.random();
+                if(random>=0.5){
+                    setTimeout(()=>{
+                        res(random)
+                    },3000)
+                }else{
+                    setTimeout(()=>{
+                        rej(random)
+                    },3000)
+                }
+            })
+        }
+        fn().then((a)=>{
+            console.log(a)
+        }).catch((b)=>{
+            console.log(b)
+        }) */
+
+    //在网页显示一个div浮层，位于正中，浮层内的文本显示当前电脑时间，格式Y-M-D h-m-s
+
+    let box = document.getElementById('box')
+    let time = new Date(),
+        year = time.getFullYear(),
+        mouth = time.getMonth() + 1,
+        date = time.getDate(),
+        hour = time.getHours(),
+        min = time.getMinutes(),
+        sen = time.getSeconds();
+
+    mouth < 10 ? '0' + mouth : mouth
+    date < 10 ? '0' + date : date
+    hour < 10 ? '0' + hour : hour
+    min < 10 ? '0' + min : min
+    sen < 10 ? '0' + sen : sen
+    box.innerText = year+"-"+mouth+'-'+date+' '+hour+':'+min+':'+sen;
+
+</script>

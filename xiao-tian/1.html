@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+</body>
+</html>
+<script>
+/* 
+    alert 输出的都是 字符串  面试是坑
+    alert({name:12}) ==> [object Object]
+    alert(['12',213]) ==> 12,213
+
+    栈内存：提供代码运行的环境，处处基本类型值
+    堆内存：提供引用类型存储的空间
+
+    let a=12,b=12  //=>let a = 12   let b = 12
+    let a=b=13   //=> let a = 13       b=13(重新给b赋值)
+
+*/
+
+var Bar = function(count){
+    this.count = count
+}
+Bar.prototype.output=function(){
+    console.log(this.count)
+}
+var foo = new Bar;
+foo.output();
+Bar.count = 100;
+foo.count = 10;
+foo.output.call(Bar,);
+Bar.prototype.count =1
+foo.output();
+var dog = foo.output;
+dog()
+</script>
