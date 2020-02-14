@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    function MyPromise(executor) {
+        let that = this  //用that保存this 实例
+        that.val = undefined  //成功执行传入的参数
+        that.Eval = undefined  //失败执行传入的参数
+        that.status = 'pendding'  //状态
+        that.resCB = []  // 存放成功的回调
+        that.rejCB = []  // 存放失败的回调
+
+        function resolve(val) {
+            if (that.status == 'pendding') {
+                that.status = 'resovled'
+                that.val = val
+                that.resCB.forEach(item => {
+                    item(that.val)
+                });
+            }
+        }
+        function reject(Eval) {
+            if (that.status == 'pendding') {
+                that.status = 'rejected'
+                that.Eval = Eval
+                that.resCB.forEach(item => {
+                    item(that.Eval)
+                });
+            }
+        }
+
+        try {
+            executor(resolve, reject)
+        } catch (error) {
+            reject(error)
+        }
+    }
+
+    MyPromise.prototype.then = function (res, rej) {
+        let that = this  //用that保存this 实例
+        return new MyPromise(function(res,rej){
+            if(that.status == 'resolved'){
+                res(that.val)
+            }else if(that.status == 'rejected'){
+                rej(that.Eval)
+            }else{
+                that.resCB.push(res)
+                that.rejCB.push(rej)
+            }
+        })
+    }
+</script>

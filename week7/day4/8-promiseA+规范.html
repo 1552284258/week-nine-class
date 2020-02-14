@@ -52,7 +52,7 @@ MyPromise.prototype.then = function (res, rej) {
         //需要判断到底让res执行还是rej执行
         if (self.status == 'resolved') {
             res(self.value)
-        }
+        } 
         if (self.status == 'rejected') {
             rej(self.reason)
         }
@@ -61,7 +61,6 @@ MyPromise.prototype.then = function (res, rej) {
             self.rejCallback.push(rej)
         }
     })
-
 }
 
     let myp = new MyPromise(function (res, rej) {

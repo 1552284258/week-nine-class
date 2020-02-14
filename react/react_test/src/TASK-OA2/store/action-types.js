@@ -1,0 +1,3 @@
+export const TASK_SYNCTASK = 'TASK_SYNCTASK'
+export const TASK_DELETE = 'TASK_DELETE'
+export const TASK_COMPLETE = 'TASK_COMPLETE'

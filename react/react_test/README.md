@@ -66,3 +66,13 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+
+安装脚手架  create-react-app  npm i create-react-app -g
+    安装脚手架的创建项目：create-react-app 项目名
+    不按装脚手架创建项目：npx create-react-app 项目名
+创建完成项目之后，想用less
+    1.先去暴露配置文件   npm run eject  这个操作是不可逆的
+                    执行该命令需要我们把git树是干净的，也就是提交到历史区
+    2.配置暴露之后  需要修改config中的 webpack.config.js 中的less属性
+    3.修改完成之后  需要安装 less 和 less-loader 这两个依赖

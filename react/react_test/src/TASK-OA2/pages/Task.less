@@ -1,0 +1,40 @@
+/*
+ * react不像Vue一样，支持css的私有化，所以写样式的时候要注意，防止样式冲突
+ *   1.可以基于Less/Sass编写样式
+ *   2.也可以基于一些插件完成样式的私有化
+*/
+.taskBox{
+    box-sizing: border-box;
+    width: 800px;
+    margin: 20px auto;
+    .headerBox{
+        position: relative;
+        line-height: 60px;
+        border-bottom: 1px dashed lightblue;
+        h2{
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .ant-btn-primary{
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    }
+
+    .navBox{
+        line-height: 60px;
+        .ant-tag{
+            line-height: 30px;
+            padding: 0 15px;
+            cursor: pointer;
+        }
+    }
+    
+}
+.ant-modal-body{
+    p{
+        line-height: 35px !important;
+    }
+}

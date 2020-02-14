@@ -35,25 +35,19 @@
 <script>
 
     //使用Promise，随机生成一个数，三秒后输出，若数不小于0.5，则使用then输出，否则按异常输出
-    /*     function fn(){
-            return new Promise((res,rej)=>{
-                let random = Math.random();
-                if(random>=0.5){
-                    setTimeout(()=>{
-                        res(random)
-                    },3000)
-                }else{
-                    setTimeout(()=>{
-                        rej(random)
-                    },3000)
-                }
-            })
-        }
-        fn().then((a)=>{
-            console.log(a)
-        }).catch((b)=>{
-            console.log(b)
-        }) */
+/*     function fn() {
+        return new Promise((res, rej) => {
+            let random = Math.random();
+            setTimeout(() => {
+                random >= 0.5 ? res(random) : rej(random)
+            }, 3000)
+        })
+    }
+    fn().then((a) => {
+        console.log(a)
+    }).catch((b) => {
+        console.log(b)
+    }) */
 
     //在网页显示一个div浮层，位于正中，浮层内的文本显示当前电脑时间，格式Y-M-D h-m-s
 
@@ -71,6 +65,6 @@
     hour < 10 ? '0' + hour : hour
     min < 10 ? '0' + min : min
     sen < 10 ? '0' + sen : sen
-    box.innerText = year+"-"+mouth+'-'+date+' '+hour+':'+min+':'+sen;
+    box.innerText = year + "-" + mouth + '-' + date + ' ' + hour + ':' + min + ':' + sen;
 
 </script>

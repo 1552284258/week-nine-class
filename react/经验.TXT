@@ -1,0 +1,41 @@
+/*
+      OA 类系统项目  必须得登录才能进入首页
+    => APP.js中做登录权限效验
+    不管访问哪的地址,都要先做登录态效验，没登录要先登录，登录后才能展示Home中提供的各个组件 
+*/
+/* 
+    如果登录了 就进入Home组件，否则就进入Login组件
+    <Route path='/' render={_=>{
+        if(1===1){   //判断条件，必须登录了 才能进Home
+            return <Home />
+        }
+        return <Login />
+    }}>
+*/
+/* 
+    <Redirect exact from='/' to='/custom' />
+
+    <Route path='/custom' component={Custom} />
+    <Route path='/custom/:xxx' component={Custom} />  //地址传参，参数要在路由里设好
+    
+    <Route path='/system' component={System} />
+    <Redirect to='/' />   // 自己在地址栏中输入没有的地址，就跳到 / ，然后上面又重定向到 custom
+*/
+/* 
+    传参方式（路由切换传参方式）
+        1.问号传参
+            <Route path={{
+                pathname: '地址',
+                search: '?传的参数'
+            }} component={Custom} />
+
+        2.地址参数
+            /custom/xxx/100
+
+*/
+/* 高阶组件(执行一个方法，返回一个代理组件，在代理组件中，完成一些需求，但是最后渲染组件 还是我们自己的组件)
+    ref 不能给组件使用 ： <Footer ref={xxx}>
+    export default React.forwardRef(Footer) (可以在导出组件的时候处理一下)
+    React.forwardRef: 高阶组件
+      =>这个方法是为了以后可以给函数组件设置REF
+*/

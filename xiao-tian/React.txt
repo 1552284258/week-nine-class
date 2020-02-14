@@ -1,0 +1,421 @@
+React基于JSX创建视图
+/*
+ Vue一般基于Template创建视图层(后期Vue也增加了JSX语法)
+
+## Vue --- React
+1.都是操作数据来影响视图，告别了传统的操作DOM的时代
+  > Model控制View层
+    - Vue基于数据劫持，拦截到最新的数据，从而重新渲染视图
+    - React是提供对应的API，通过我们操作API，让最新数据渲染视图
+
+2.都一定存在DOM的差异化渲染(DOM DIFF)
+  > 每一次数据更改，只把需要改变的视图部分进行重新渲染
+
+3.React默认只实现了单向控制(只有数据影响视图)，而Vue基于v-mode实现了双向控制(既也包含了视图影响数据)
+  > 无论是Vue还是React，在实现视图影响数据的方式上，也都是基于input/change事件，箭头表单元素内容的改变，从而修改数据，达到数据的更新
+
+**Vue只是v+vm层   React只是v层**
+
+*/
+
+————————————————————————————————
+
+### React脚手架
+脚手架默认安装：
+- React
+- react-dom开发HTML页面程序    (react-native开发原生APP的)
+- react-scripts 
+/*
+* 和Vue一样，React脚手架也默认配置好的webpack那些东西隐藏到了node_modules中了
+*  =>Vue是提供vue.confit.js让用户自己去修改配置 
+*  =>想要修改React中的webpack配置项
+*    1.先把排序hi系那个暴露出来：$ yarn eject /  $ npm run eject
+*    2.细节点：不可逆转的 + 如果有git先要保存修改项
+*    confit： webpack配置项
+*       |- webpack.confit.js
+*       |- webpackDevServer.config.js
+*       |- path.js 存放各配置的地址文件信息(入口文件)
+*       |- ...
+*    scripts：
+*       |- start.js   开发环境下 $ yarn start 先执行这个文件
+*       |- build.js   生产环境下 $ yarn build 先执行这个文件
+*       |- ...
+*/
+
+/*
+  index.html：
+  1.默认情况下，我们会把所有需要开发引入的资源(样式和图片...)和编写的模块代码都放在SRC目录中（webpack本身就是打包SRC目录，根据入口index.js的依赖项打包在一起）
+  2.但是有些东西我们还是需要写在index.html中的
+    |- 页面导入最后打包的css/js，由于打包后的文件比较大，第一次请求页面需要一点时间，这个时间段内，我们看到的就是白屏效果
+      1）为了解决白屏效果，我们会在index.html中设置loading效果(loading不打包在webpack中，这些内容是已加载页面就展示出来的) => 这个有对应的插件
+      2）给资源做304缓存
+      ...
+    => 有一些Js模块，不支持COmmonJS/ES6Module这种模块的导入导出规范，此时需要我们把这些模块在index.html中单独script导入进来
+    => 还可以把一些公共资源直接在这里导入，这样webpack打包的时候，就不会把内容都打包在一起了
+    => ...
+*/
+
+### 配置向后兼容
+/*
+  - browsersList
+  - Polyfill / react-app-polyfill
+*/
+
+/*
+  JSX虚拟DOM渲染为真实DOM的原理和步骤
+    1.基于babel-preset-react-app 把JSX语法变为React.createElement的模式
+      - 每遇到元素标签(或者组件)都要createElement
+      - 前两个参数是固定的，分别是标签名(组件)、属性，第三个及以后参数是子元素
+      - 传递了属性，第二个参数是一个对象(包含了各属性的信息)，没有传递属性则第二个参数为null
+    2.基于React.createElement方法的执行，创建出虚拟DOM对象(JSX对象)
+      - 首先是一个对象
+      - type属性存储的是标签名(组件)
+      - props属性：没有传递任何属性，有没有任何子元素，其为空对象；把传递给create.Element的属性，都赋值给props；如果有子元素，则默认新增一个children的属性，可能是一个值，也可能是一个数组
+    3.基于ReactDOM.render把创建的虚拟DOM对象渲染到页面指定的容器中
+      - ReactDom.render([JSX-OBJ],[CONTAINER],[CALLBACK])
+      - [CALLBACK]渲染触发的回调函数，在这一可以获取到真实的DOM
+*/
+
+#### 拓展
+1、了解vue-cli的配置语法(官网)  把create-react-app暴露出来的配置看一下，查一些常用的webpack优化项
+
+
+
+React.createElement = function(type,props,...children){
+  let jsxOBJ = {
+    type:type,
+    props:{}
+  }
+
+  //如果props存在，说明传递了属性，把传递属性都放置到JSX-OBJ的props中
+  if(props){
+    //基于ES6实现浅克隆
+    jsxOBJ.props={...props}
+  }
+
+  //如果传递了子元素，还需要给jsx-OBJ的props中设置children属性
+  if(children.length > 0){
+    jsxOBJ.props.children = children
+    //如果只传递了一个子元素，就把第一项赋值给
+    if(children.length === 1){
+      jsxOBJ.props.children = children[0]
+    }
+  }
+
+  return jsxOBJ
+}
+
+ReactDOM.render = function render(jsxOBJ,container,callback){  //匿名函数加名字，只能在函数内部用
+  let { type,props } = jsxOBJ
+  //如果type是string的，就创建DOM元素
+  if(typeof type === 'string'){
+    let element = documet.createElement(type)  //创建DOM元素
+    for(let k in props){     //给创建的DOM设置属性
+      if(!props.hasOwnProperty(k)) break;
+      //样式类和行内样式的特殊处理
+      if(k === 'className'){
+        element.setAttribute(class,props[k])
+        continue;
+      }
+      if(k === 'style'){
+        let styOBJ = props['style']
+        for(let attr in styOBJ){
+          if(!styOBJ.hasOwnProperty(attr)) break;
+          element.style[attr]=styOBJ[attr]
+        }
+        continue;
+      }
+      //关于子元素的处理
+      if(k === 'children'){
+        //统一为数组
+        let children = props['children'];
+        if(!Array.isArray(children)){
+           children=[children]
+        }
+        //循环子元素
+        children.forEach(item=>{
+          //如果是文本，直接创建文本节点赋值给element即可，如果是新的虚拟DOM对象，则需要重复调用RENDER方法，把新创建的DOM对象增加给element(递归)
+          if(typeof item === 'string'){
+            element.appendChild(documet.createTextNode(item))
+
+          }
+          render(item,element)
+        })
+        continue;
+      }
+      element.setAttribute(k,props[k])
+    }
+    container.appendChild(element) //放到指定容器中
+    callback && callback()  //触发callback；如果callback存在就执行
+  }
+
+}
+
+
+### 组件
+/**
+ * 函数式组件(函数返回JSX元素)：Clock始终组件
+ *  - 调取组件可以是单闭合，也可以是双闭合(双闭合调用，可以把子元素当做属性中的children传递给组件,类        似于vue中的slot)
+ *  - 底层运作的时候，如果虚拟DOM对象的type是一个函数(或者一个类)，首先会把函数执行(把解析出来的props       传递给这个函数)，函数会把一个新的虚拟DOM对象返回，最后整体渲染
+ *  - React.Children提供对应的方法专门用来处理传递进来的子元素children的
+ *  - 传递进来的属性是只读的(只能获取不能直接修改其里面的值)，如果非要修改某一个值，可以把其赋值给一个        变量(状态)，再去修改变量(状态)；再或者把属性深克隆一份，供调取和修改
+ * 函数式组件属于静态组件，调取组件渲染出一个结果，后续除非重新渲染组件，负责第一次渲染的内容不会改变         (当然REACT HOOKS可以帮我们解决这个问题)
+ */
+  function Clock(props){
+    return <div>
+       {new Date().toLocaleDateString()}
+       {props.children}
+    </div>
+  }
+  //React.createElement(Clock,null)
+
+
+/**
+ *  类组件:创建一个类，并继承 React.Component/React.PureComponent
+ *    - 渲染的时候发现type是一个类，则会创建当前类的实例
+ *    - 同样会把解析出来的props传递给当前这个类,并且React会帮我们把props挂载到当前类的实例上               (this.props即可操作属性)   但是默认情况下是执行完constructor才把props挂载到实例上的，所以再        constructor中无法基于this.props获取
+ *  
+ *  受控组件：基于数据驱动视图的渲染(类组件也是数据驱动)
+ *    - 组件状态
+ *  非受控组件：直接操作DOM的
+ *    - ref
+ */
+class Clock extends React.Component{  //受控组件
+  constructor(props){
+    super(props); //=>类似于call继承 React.Component.call(this,props)
+            //=> this.props=props
+  }
+  render(){
+    let time = new Date().toLocaleString()
+    return <div>
+      {time}
+    </div>
+  }
+}
+
+class Clock extends React.Component{  //非受控组件
+  constructor(props){
+    super(props);
+    //初始化状态(后续需要用到的状态初始化)
+    this.state={
+      time = new Date().toLocaleString()
+    }
+  }
+  render(){
+    //在渲染的时候使用状态
+    return <div>
+      {this.state.time}
+      {/* <button onClick={this.handle}>暂停</button> */}
+      {/* <button onClick={ev=>{this.handle(ev,100)}}>暂停</button> */}
+      {/* <button onClick={ev=>{clearInterval(this.autoTimer)}}>暂停</button> */}
+      {/* <button onClick={this.handle.bind(this,100)}>暂停</button> */}
+
+      {/* <button ref='btn'>暂停</button> */}
+      <button ref={x=>{
+        //真实项目当中，ref经常这样玩:写成函数表达式
+        // x=>昂起操作的元素
+        this.btn=x // 直接把元素挂载到实例上，不走refs
+      }}>暂停</button>
+    </div>
+  }
+  // 编写操作方法：写在原型上的，直接基于this.xxx即可直接调用
+  // 给元素的事件绑定方法，默认方法中的this->undefined，真实项目中我们需要像vue一样保证方法中的this     都是实例，这样方便我们的操作，此时我们需要把方法写成箭头函数(this是上下文中的实例)
+  handle=(ev,n)=>{
+    //ev 就是事件对象
+    console.log(this)
+  }
+  //第一次加载完成的生命周期函数
+  conponentDidMount(){
+    this.autoTimer = setInterval(() => {
+      //可以修改状态，但是不能控制视图重新渲染  =>setState
+      // this.state.time = new Date().toLocaleString()
+
+      //setState(partalState,callback):部分状态、当状态更新视图重新渲染完触发的回调函数(类似vue中的$nextTick)
+      this.setState({
+        time:new Date().toLocaleString()
+      })
+    }, 1000);
+
+    //=> 可以获取到DOM元素
+    //设置ref则这样获取
+    //=>this.refs.btn
+
+    this.btn.addEventListener('click',()=>{
+      clearInterval(this.autoTimer)
+    })
+  }
+}
+
+
+### 生命周期
+/**
+ * shouldComponentUpdate(nextProps,nextState){
+ *  //=> 原来的属性和状态
+ *  //=> thisprops || this.state
+ *  //=> 即将要改变的新状态
+ *  //=> nextProps || nextState
+ *  //=> 一般做组建的性能优化
+ * return false; //=> true允许更新，false反之(阻止的不是状态的改变，阻止的是视图是否重新渲染)
+ * }
+ * 
+ * this.forceUpdate()  //强制重新渲染
+ * 
+ */
+
+
+/**
+ * React Hooks
+ *  React提供的Hooks函数，目的是让”函数式组件“能有用类似于“类组件”的一些效果
+ *  => useState在函数式组件中应用状态
+ *  => useEffect 拥有生命周期函数
+ *  => useRef 让其使用DOM
+ *  => useReducer 让其能够像redux一样管理状态
+ *  => ...
+ */
+
+/**
+ * useState 应用状态
+ *  @params
+ *      initState初始状态值(也可以是个函数，函数中返回初始状态值)
+ *  @return
+ *      数组：[状态,更改状态的方法]
+ *  let [state, changeNum] = useState({
+ *        supNum: 0,
+ *        oppNum: 0
+ *  }); //0可以理解成初始状态值s
+ */
+
+  //  useEffect 让其拥有生命周期函数
+  // useEffect(()=>{
+  //   //componentDidMount | componentDidUpdate
+  //   console.log('ok')
+  // })
+
+  // useEffect(()=>{
+  //    //componentDidMount
+  //  console.log('ok')
+  // },[])
+
+  // useEffect(()=>{
+  //    //指定依赖项，只有xxx更改，才会触发
+  //  console.log('ok')
+  // },[supNum])
+
+  // useEffect(()=>{
+  //   return ()=>{
+  //     //componentDidUpdate
+  //     console.log('ok')
+  //   }
+  // })
+
+  //useRef 让其可以进行DOM操作
+  //  1.使用ref
+  //  2.想要获取哪个DOM元素就给其赋值给DOM的ref属性
+  //  3.基于current属性可以获取到DOM元素
+  // let num = useRef()
+  // <h3 ref={num}>{props.title}</h3>
+
+
+##  redux  
+
+/**
+ * 传参：
+ *  1.父传子：用属性；只能父传子，属于单向数据流；但是可以基于回调函数的机制实现“子传父”
+ *    => 把父组件中的一个方法，当做属性传递给子组件
+ *    => 子组件中可以接收到这个方法
+ *    => 在子组件中把这个方法执行，从而实现对父组件中一些信息的修改
+ *  2.发布订阅：在全局创建一个事件池【$on,$init】($on给事件池添加方法，$init执行事件池的方法)
+ *    => 
+ */
+
+/**
+ * REDUX弊端
+ *  1.只要事件池中一个方法被通知重新渲染，其他的都会同时执行一次(一个小优化：在方法中写个小判断，如果数据没变动就不刷新，就算通知执行了，但是判断不过，也不会重新渲染)
+ *  2.返回的状态和原始状态公用一个相同的空间，这样会导致获取状态后直接就能修改容器中的状态信息
+ *  3.给事件池中添加事件时，没有判断重复，没有去重
+ */
+
+
+ /**  模块化reducer，其中的各板块小模板
+  * import * as TYPES from '../action-types'
+  * const initialState = {
+  *   title:''
+  * }
+  * export default function xxx(state = initialState,action){
+  *   state = JSON.parse(JSON.stringify(state))
+  *   switch (action.type) {
+  *     case xxx :
+  *       state.xxx =  xxx
+  *       break;
+  *   }
+  *   return state
+  * }
+  */
+
+/** 把各小reducer合并成一个大reducer
+ * 为了防止各个reducer
+ * state = {
+ *    xxx:{
+ *      title:'',
+ *      xxx
+ *    },
+ *    aaa:{
+ *      title:'',
+ *      xxx
+ *    }
+ * }
+ * store.getState().xxx.title // 获取数据状态要指定对应的模块名
+ * 
+ * import{ combineReducers } from 'redux'
+ * import xxx from './xxx'
+ * const reducer = combineReducers({
+ *  xxx:xxxxx
+ * })
+ * export default reducer
+ */
+
+/**
+ * react-redux是专门为react项目封装的热爱读写处理库，简化redux在组件中的应用代码
+ *  - Provider组件
+ *      把store挂载到祖先元素的上下文中，方便后期后台组件的调用
+ *  - connect组件
+ *      把redux容器中存储的状态以及需要派发的行为任务都通过属性传递给当前组件
+ *      自动会向事件池中追加当前组件重新渲染的方法，保证状态更新，
+ */
+/**
+ * connect执行需要传两个函数
+ *  + mapStateToProps:把redux容器中的公共状态当做属性传递给当前的组件
+ *  + mapDispatchToProps:把需要派发的行为方法通过属性传递给当前的组件
+ */
+function mapStateToProps(state){
+  // state:redux容器中的所有公共状态
+  // return的值就是当做属性传递给 组件 的状态信息
+  return {
+    ...state.xxx,
+    AA:100,
+    ...
+  }
+
+}
+export default connect(mapStateToProps)(/* 组件名 */)  //状态信息
+export default connect(state=>state.xxx)(/* 组件名 */)  //状态信息
+
+function mapDispatchToProps(dispatch){
+  //形参是dispatch方法
+  return {
+    xxx(n){  // xxx.bind(this,20)
+      dispatch(xxx.xxx.xxx(n))
+    }
+  }
+}
+
+export default connect(null,mapDispatchToProps)(/* 组件名 */)  //
+export default connect(null,xxx.xxx)(/* 组件名 */)  //
+/* connect会默认帮我们把actionCreator对象变为mapDispatchToProps这种函数模式 */
+
+/**
+ * redux中间件
+ *  - reduxLogger
+ *  - reduxThunk
+ *  - reduxPromise
+ */
